@@ -2,7 +2,7 @@ import useAddGroup from './useAddGroup';
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-
+const SECRET_API_KEY='Bearer  737|o8NCE1TFHqAQ15lW6dCZZlyDmDJCGJixA8JeF2NG' // should not be upload to git
 const AddGroupModal = ({ setShowModal }: { setShowModal: React.Dispatch<React.SetStateAction<boolean>> }) => {
 
   const [enableTemperatureAlert, setEnableTemperatureAlert] = useState(false);
@@ -11,7 +11,7 @@ const AddGroupModal = ({ setShowModal }: { setShowModal: React.Dispatch<React.Se
 
   const { isPending, error, data: countries } = useQuery({
     queryKey: ["countries", []],
-    queryFn: async () => await fetch(`https://restfulcountries.com/api/v1/countries`, { headers: { Authorization: "Bearer  737|o8NCE1TFHqAQ15lW6dCZZlyDmDJCGJixA8JeF2NG" } }).then((res) => res.json()),
+    queryFn: async () => await fetch(`https://restfulcountries.com/api/v1/countries`, { headers: { Authorization:SECRET_API_KEY  } }).then((res) => res.json()),
   });
   if (isPending) return "Loading...";
 
