@@ -1,35 +1,28 @@
+import useAddGroup from './useAddGroup';
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-interface AddGroupModalProps {
-  submit: (newItem: FormData) => void;
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>
 
-}
-
-const AddGroupModal = ({ submit, setShowModal }: AddGroupModalProps) => {
+const AddGroupModal = ({ setShowModal }: { setShowModal: React.Dispatch<React.SetStateAction<boolean>> }) => {
 
   const [enableTemperatureAlert, setEnableTemperatureAlert] = useState(false);
 
+  const { handleAddGroup } = useAddGroup();
 
-
-  const { isPending, error, data: countries
-  } = useQuery({
+  const { isPending, error, data: countries } = useQuery({
     queryKey: ["countries", []],
-    queryFn: async () => await fetch(`https://restfulcountries.com/api/v1/countries`, { headers: { Authorization: "Bearer  737|o8NCE1TFHqAQ15lW6dCZZlyDmDJCGJixA8JeF2NG" } }).then((res) => res.json() as any),
+    queryFn: async () => await fetch(`https://restfulcountries.com/api/v1/countries`, { headers: { Authorization: "Bearer  737|o8NCE1TFHqAQ15lW6dCZZlyDmDJCGJixA8JeF2NG" } }).then((res) => res.json()),
   });
   if (isPending) return "Loading...";
 
   if (error) return "An error has occurred: " + error.message;
 
 
-
-
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
       <div className="bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md mx-auto ">
         <h2 className="text-2xl font-semibold text-white mb-4">Add New Item</h2>
-        <form action={submit}>
+        <form action={(formData) => handleAddGroup(formData, setShowModal)}>
           <input
             type="text"
             name="name"
@@ -85,9 +78,6 @@ const AddGroupModal = ({ submit, setShowModal }: AddGroupModalProps) => {
                 name="shipment"
                 className="mr-2 mt-[0.3rem] h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-neutral-300 before:pointer-events-none before:absolute before:h-3.5  before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-mt-[0.1875rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-neutral-100 after:shadow-[0_0px_3px_0_rgb(0_0_0_/_7%),_0_2px_2px_0_rgb(0_0_0_/_4%)] after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-blue checked:after:absolute checked:after:z-[2] checked:after:-mt-[3px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-blue-400 checked:after:shadow-[0_3px_1px_-2px_rgba(0,0,0,0.2),_0_2px_2px_0_rgba(0,0,0,0.14),_0_1px_5px_0_rgba(0,0,0,0.12)] checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[3px_-1px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-blue-400 checked:focus:bg-blue-400 checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:bg-neutral-600 dark:after:bg-neutral-400 dark:checked:bg-blue-400 dark:checked:after:bg-blue-400 dark:focus:before:shadow-[3px_-1px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca]"
               />
-                      {/* <label htmlFor="shipment" className="toggle-input relative inline-block w-12 h-6 bg-gray-300 rounded-full cursor-pointer transition-colors duration-200 ease-in-out"></label> */}
-                      {/* <span className="w-16 h-10 flex items-center flex-shrink-0 ml-4 p-1 bg-gray-300 rounded-full duration-300 ease-in-out peer-checked:bg-green-400 after:w-8 after:h-8 after:bg-white after:rounded-full after:shadow-md after:duration-300 peer-checked:after:translate-x-6"></span> */}
-
               <label className="ml-3 text-gray-200" htmlFor="shipment">Shipment status</label>
             </div>
 
@@ -140,7 +130,7 @@ const AddGroupModal = ({ submit, setShowModal }: AddGroupModalProps) => {
         >
           Close
         </button> </div>
-    </div>
+    </div >
   )
 };
 

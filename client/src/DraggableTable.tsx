@@ -2,56 +2,35 @@ import { useState } from "react";
 import { Group } from "./App";
 import InfoModal from "./InfoModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { onDragStart, onDragOver, dropLogic } from "./DraggableTableLogic";
 
 interface prop {
-  // setData: React.Dispatch<React.SetStateAction<Group[]>>
-  data: Group[]
+
+  groups: Group[]
 }
 
-const DraggableTable = ({ data, /*setData*/ }: prop) => {
+const DraggableTable = ({ groups, }: prop) => {
   const queryClient = useQueryClient();
 
   const changePriority = useMutation({
     mutationFn: async (groups: Group[]) =>
-      await fetch(`http://localhost:3000/group`, { body: JSON.stringify(groups), method: "PUT" }).then((res) => res.json())
+      await fetch(`http://localhost:3000/group`, {
+        body: JSON.stringify(groups), method: "PUT", headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }).then((res) => res.json())
     , onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
     }
-
   })
 
 
   const [selectedRow, setSelectedRow] = useState<Group | null>(null);
 
-  const onDragStart = (event: React.DragEvent<HTMLTableRowElement>, dragPriority: number, dragIndex: number) => {
-    event.dataTransfer.setData('dragPriority', JSON.stringify({ priority: dragPriority, index: dragIndex }));
-    event.dataTransfer.effectAllowed = 'move';
-  };
-
-  const onDragOver = (event: React.DragEvent<HTMLTableRowElement>) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  };
-
-  const onDrop = (event: React.DragEvent<HTMLTableRowElement>, dropPriority: number, dropIndex: number) => {
-    event.preventDefault();
-    const drag = JSON.parse(event.dataTransfer.getData('dragPriority')) as {
-      priority: number;
-      index: number;
-    }
-
-    if (drag.priority !== dropPriority) {
-
-
-      const [draggedItem] = data.splice(drag.index, 1);
-      data.splice(dropIndex, 0, draggedItem);
-      changePriority.mutate(data.map((item, index) => ({
-        ...item,
-        priority: index + 1,
-      })))
-
-      // setData(updatedData);
-    }
+  const onDrop = (event: React.DragEvent<HTMLTableRowElement>, dropPriority: number, dropIndex: number,) => {
+    const newGroups = dropLogic(event, dropPriority, dropIndex, groups)
+    if (newGroups) changePriority.mutate(newGroups)
   };
 
   return (
@@ -70,7 +49,7 @@ const DraggableTable = ({ data, /*setData*/ }: prop) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => (
+          {groups.map((item, index) => (
             <tr
               key={item.groupId}
               draggable

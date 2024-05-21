@@ -48,16 +48,17 @@ const GroupData = t.Object({
 });
 
 const GROUPS_FILES = "public/groups.json"
+console.log();
 
-const readActionWrite = (f: Function, d: any) => // better typing 
-  Bun.file(GROUPS_FILES).json().then((groups: Group[]) => f(groups, d)).then(filteredGroups => Bun.write(GROUPS_FILES, filteredGroups))
+const readActionWrite = (action: (groups: Group[], ...optionalParams: any[]) => Group[], ...optionalParams: any[]) => // better typing 
+  Bun.file(GROUPS_FILES).json().then((groups: Group[]) => action(groups, ...optionalParams)).then(filteredGroups => Bun.write(GROUPS_FILES, filteredGroups))
+
 const app = new Elysia()
   .use(staticPlugin())
-  .state('save', false)
   .use(cors())
   .get("/groups/", () => Bun.file(GROUPS_FILES))
   .put("/group/"
-    , async ({ body }) => { console.log(body); return Bun.write(GROUPS_FILES, body as any) }
+    , async ({ body }) => { console.log(body); return Bun.write(GROUPS_FILES, JSON.stringify(body)) }
     , { body: t.Array(GroupData) })
   .post("/group/"
     , async ({ body }) => {
@@ -72,7 +73,7 @@ const app = new Elysia()
         return JSON.stringify(groups.concat({ ...body, groupId: Date.now().toString(), priority: groups.length + 1 }))
       }, body)
     }
-    , { body: GroupData } //need to change
+    , { body: GroupData }
   )
   .delete("/group/:id", ({ params: { id } }) => readActionWrite((groups: Group[], id: number) => groups.filter((group: any) => group.groupId != id), id))
   .listen(3000);

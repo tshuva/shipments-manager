@@ -56,7 +56,7 @@ A web application to manage "Group" entities using. Each Group holds shipments b
     pnpm run dev
     ```
 
-4. The app will be available at `http://localhost:3000`.
+4. The app will be available at `http://localhost:5173`.
 
 ## API Endpoints
 
