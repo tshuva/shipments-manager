@@ -1,6 +1,44 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { GroupData } from './App';
 
+const formToGroupMapper = {
+  'criteria-to': (acc: GroupData, value: string): GroupData => {
+    acc.criteria.to.push(value);
+    return acc;
+  },
+  'criteria-from': (acc: GroupData, value: string): GroupData => {
+    acc.criteria.from.push(value);
+    return acc;
+  },
+  name: (acc: GroupData, value: string): GroupData => {
+    acc.name = value;
+    return acc;
+  },
+  description: (acc: GroupData, value: string): GroupData => {
+    acc.description = value;
+    return acc;
+  },
+  shipment: (acc: GroupData, value: string): GroupData => {
+    acc.alertRules.shipment = value === 'on';
+    return acc;
+  },
+  temperature: (acc: GroupData, value: string): GroupData => {
+    acc.alertRules.temperature.on = value === 'on';
+    return acc;
+  },
+  minTemp: (acc: GroupData, value: string): GroupData => {
+    acc.alertRules.temperature.min = parseInt(value);
+    return acc;
+  },
+  maxTemp: (acc: GroupData, value: string): GroupData => {
+    acc.alertRules.temperature.max = parseInt(value);
+    return acc;
+  }
+};
+
+type FormKeys = keyof typeof formToGroupMapper
+
+
 const useAddGroup = () => {
   const queryClient = useQueryClient();
 
@@ -29,43 +67,12 @@ const useAddGroup = () => {
   });
 
   const handleAddGroup = (form: FormData, setShowAddGroupModal: (value: boolean) => void) => {
-    const criteriaKeyPrefix = 'criteria-';
-    const newItem = (Array.from(form.entries()) as [string, string][]).reduce((acc, [key, value]) => {
-      switch (key) {
-        case key.match(new RegExp(`^${criteriaKeyPrefix}`))?.input:
-          const criteriaType = key.slice(criteriaKeyPrefix.length) as 'from' | 'to';
-          acc.criteria[criteriaType].push(value);
-          break;
-        case 'name':
-          if (value) acc.name = value;
-          break;
-        case 'description':
-          if (value) acc.description = value;
-          break;
-        case 'shipment':
-          acc.alertRules.shipment = value === 'on';
-          break;
-        case 'temperature':
-          acc.alertRules.temperature.on = value === 'on';
-          break;
-        case 'minTemp':
-          acc.alertRules.temperature.min = parseInt(value);
-          break;
-        case 'maxTemp':
-          acc.alertRules.temperature.max = parseInt(value);
-          break;
-        default:
-          if (key.startsWith(criteriaKeyPrefix)) {
-            const criteriaType = key.slice(criteriaKeyPrefix.length) as 'from' | 'to';
-            acc.criteria[criteriaType].push(value);
-          }
-          break;
-      }
-      return acc;
-    }, {
-      criteria: { from: [], to: [] },
-      alertRules: { shipment: false, temperature: { on: false, min: 0, max: 0 } },
-    } as GroupData);
+    const newItem = (Array.from(form.entries()) as [FormKeys, string][]).reduce((acc, [key, value]) =>
+      formToGroupMapper[key](acc, value)
+      , {
+        criteria: { from: [], to: [] },
+        alertRules: { shipment: false, temperature: { on: false, min: 0, max: 0 } },
+      } as GroupData);
 
     addGroupMutation.mutate(newItem);
     setShowAddGroupModal(false);
@@ -75,3 +82,38 @@ const useAddGroup = () => {
 };
 
 export default useAddGroup;
+
+
+/* // switch (key) {
+      //   case key.match(new RegExp(`^${criteriaKeyPrefix}`))?.input:
+      //     const criteriaType = key.slice(criteriaKeyPrefix.length) as 'from' | 'to';
+      //     acc.criteria[criteriaType].push(value);
+      //     break;
+      //   case 'name':
+      //     if (value) acc.name = value;
+      //     break;
+      //   case 'description':
+      //     if (value) acc.description = value;
+      //     break;
+      //   case 'shipment':
+      //     acc.alertRules.shipment = value === 'on';
+      //     break;
+      //   case 'temperature':
+      //     acc.alertRules.temperature.on = value === 'on';
+      //     break;
+      //   case 'minTemp':
+      //     acc.alertRules.temperature.min = parseInt(value);
+      //     break;
+      //   case 'maxTemp':
+      //     acc.alertRules.temperature.max = parseInt(value);
+      //     break;
+      //   default:
+      //     if (key.startsWith(criteriaKeyPrefix)) {
+      //       const criteriaType = key.slice(criteriaKeyPrefix.length) as 'from' | 'to';
+      //       acc.criteria[criteriaType].push(value);
+      //     }
+      //     break;
+      // }
+      return acc;
+    }
+    */
