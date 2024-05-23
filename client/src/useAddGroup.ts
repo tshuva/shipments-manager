@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { GroupData } from './App';
 
+
 const formToGroupMapper = {
   'criteria-to': (acc: GroupData, value: string): GroupData => {
     acc.criteria.to.push(value);
@@ -82,38 +83,3 @@ const useAddGroup = () => {
 };
 
 export default useAddGroup;
-
-
-/* // switch (key) {
-      //   case key.match(new RegExp(`^${criteriaKeyPrefix}`))?.input:
-      //     const criteriaType = key.slice(criteriaKeyPrefix.length) as 'from' | 'to';
-      //     acc.criteria[criteriaType].push(value);
-      //     break;
-      //   case 'name':
-      //     if (value) acc.name = value;
-      //     break;
-      //   case 'description':
-      //     if (value) acc.description = value;
-      //     break;
-      //   case 'shipment':
-      //     acc.alertRules.shipment = value === 'on';
-      //     break;
-      //   case 'temperature':
-      //     acc.alertRules.temperature.on = value === 'on';
-      //     break;
-      //   case 'minTemp':
-      //     acc.alertRules.temperature.min = parseInt(value);
-      //     break;
-      //   case 'maxTemp':
-      //     acc.alertRules.temperature.max = parseInt(value);
-      //     break;
-      //   default:
-      //     if (key.startsWith(criteriaKeyPrefix)) {
-      //       const criteriaType = key.slice(criteriaKeyPrefix.length) as 'from' | 'to';
-      //       acc.criteria[criteriaType].push(value);
-      //     }
-      //     break;
-      // }
-      return acc;
-    }
-    */
